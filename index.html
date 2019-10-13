@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<body onload="resizeCanvas();" onkeypress="redraw(event)">
+		<style type="text/css">
+		canvas, input, h1 {
+		user-select: none;
+        	-moz-user-select: none;
+        	-khtml-user-select: none;
+        	-webkit-user-select: none;
+        	-o-user-select: none;
+		-ms-user-select: none;
+		}
+   		 </style>
+	<h1 align="center">Press ENTER to add N points, N = <input style="font-size:75%; font-weight:bold" type="number" value=1 id="sizeT" min="1" max="10000">
+                                                             <input style="font-size:75%; font-weight:bold" type="submit" onclick="clearFun();" value="Clear"></h1>
+	<p align="center"><canvas id="myC">Your browser does not support the HTML5 canvas tag.</canvas></p>
+
+
+
+	<script>
+		var maxval = 10000;
+        var N = 3;
+        var num = 1;
+        var c;
+        var cW, cH;
+        var ctx;
+        var canvasData;     
+        let xV = [];
+        let yV = [];   
+        var xnew, ynew;
+
+        function drawPixel (x, y, r, g, b, a) {
+            var index = (Math.round(x) + Math.round(y) * cW) * 4;
+
+            canvasData.data[index + 0] = r;
+            canvasData.data[index + 1] = g;
+            canvasData.data[index + 2] = b;
+            canvasData.data[index + 3] = a;
+        }
+
+        function clearFun()
+        {
+            ctx.clearRect(0, 0, cW, cH);
+            canvasData = ctx.getImageData(0, 0, cW, cH);
+            resizeCanvas();            
+        }
+		
+		function resizeCanvas()
+		{
+            c = document.getElementById("myC");
+			c.width = window.innerWidth*0.6;
+			c.height = window.innerHeight*0.85;
+            cW = c.width;
+            cH = c.height;
+            ctx = c.getContext("2d");
+            canvasData = ctx.getImageData(0, 0, cW, cH);
+            ctx.fillStyle = "#0000FF";
+            
+            ctx.clearRect(0, 0, cW, cH);
+            canvasData = ctx.getImageData(0, 0, cW, cH);
+			
+			var an = 180*(N - 2)/N;
+            var bn = 180 - an;
+            
+            var a3 = 60.;
+            var b3 = 180 - a3;
+            var l3 = 2*0.98*cH*Math.sqrt(3)/3;
+            var ln = bn*l3/b3;
+			
+            var ai = an/2.;
+            xV[0] = cW/2.;
+            yV[0] = 7.;
+            xnew = xV[0];
+            ynew = yV[0];
+
+            for (var i = 1; i <= N; i++) {
+                xV[i] = xV[i-1] + ln*Math.sin(ai*Math.PI/180.);
+                yV[i] = yV[i-1] + ln*Math.cos(ai*Math.PI/180.);
+                ai -= bn;
+                drawPixel(xV[i], yV[i], 0, 0, 255, 255);
+                drawPixel(xV[i], yV[i]+1, 0, 0, 255, 255);
+                drawPixel(xV[i], yV[i]-1, 0, 0, 255, 255);
+                drawPixel(xV[i]-1, yV[i], 0, 0, 255, 255);
+                drawPixel(xV[i]-1, yV[i]+1, 0, 0, 255, 255);
+                drawPixel(xV[i]-1, yV[i]-1, 0, 0, 255, 255);
+                drawPixel(xV[i]+1, yV[i], 0, 0, 255, 255);
+                drawPixel(xV[i]+1, yV[i]+1, 0, 0, 255, 255);
+                drawPixel(xV[i]+1, yV[i]-1, 0, 0, 255, 255);
+            }  
+            updateCanvas();
+		}
+        
+        function updateCanvas() {
+            ctx.putImageData(canvasData, 0, 0);
+        }        
+		
+		function redraw(e) 
+		{
+            if (e.keyCode != 13) return;
+        
+            num = document.getElementById("sizeT").value;
+            ctx.fillStyle = "#FF0000";
+            
+            for (var i = 0; i < num; i++) {
+                var vx = Math.floor(Math.random() * N);
+                xnew += (xV[vx] - xnew)/2;
+                ynew += (yV[vx] - ynew)/2;
+                drawPixel(xnew, ynew, 0, 0, 255, 255);
+            }
+            updateCanvas();
+		}
+	</script>
+
+</body>
+</html>
