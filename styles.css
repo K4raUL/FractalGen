@@ -1,0 +1,54 @@
+body {
+  background-color: #FBEEE6;
+}
+
+.wrapper {
+    text-align: center;
+}
+
+p {
+    font-size: 20px;
+    font-weight:bold;
+    display:inline-block;
+    width:70%;
+}
+
+canvas, input, body {
+    user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+    -ms-user-select: none;
+}
+
+.data {
+	display: inline-block;
+    vertical-align: top;
+    height: 98vh;
+    width: 25%;
+    border:2px solid #99A3A4;
+    box-sizing: border-box;
+    padding-left: 10px;
+    padding-right:10px;
+}
+
+.draw {
+	display: inline-block;
+    vertical-align: top;    
+    height: 98vh;
+    width: 74%;
+    border:2px solid #99A3A4;
+    box-sizing: border-box;
+}
+
+.inputs {
+    text-align: left;
+}
+
+input {
+    display: inline-block;
+    width: 25%;
+    font-size:100%; 
+    font-weight:bold
+}
