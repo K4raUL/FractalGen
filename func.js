@@ -1,13 +1,12 @@
-var maxval = 10000;
-var N;
-var num = 1;
-var c;
-var cW, cH;
-var ctx;
-var canvasData;     
-let xV = [];
-let yV = [];   
-var xnew, ynew;
+var N;					// number of polygon sides (3 - triangle, 4 - square, ...)
+var num = 1;			// number of points to be added to canvas
+var c;					// canvas pointer
+var cW, cH;				// canvas width and height
+var ctx;				// 2D context of canvas
+var canvasData; 		// image data of context    
+let xV = [];			// X coords of attractor points (first N elements - vertices of polygon, next N*(N-3) - additional attractor points)
+let yV = [];			// Y coords of attractor points
+var xnew, ynew;			// new point coordinates
 
 document.addEventListener('keydown', function (e) {
     var code = e.keyCode;
@@ -30,9 +29,13 @@ function updateCanvas() {
 
 function ClearFun()
 {
+	xV = [];
+	yV = [];
     ctx.clearRect(0, 0, cW, cH);
     canvasData = ctx.getImageData(0, 0, cW, cH);
     document.getElementById("totalP").innerHTML = N.toString();
+	
+	DrawInitPolygon();
 }
 
 function Format(sender)
@@ -44,7 +47,6 @@ function Format(sender)
         sender.value = val;
         N = Number(val);
         ClearFun();
-        DrawInitPolygon();
     }
     else if (sender.id == "points") {
         if (val == NaN || val == null || val == undefined || val < 1) val = 1;
@@ -65,7 +67,6 @@ function Init()
     cH = c.height;
     
     ClearFun();
-    DrawInitPolygon();
 }
 
 function DrawInitPolygon()
@@ -75,12 +76,18 @@ function DrawInitPolygon()
     
     var a3 = 60.;
     var b3 = 180 - a3;
-    var l3 = 2*0.98*cH*Math.sqrt(3)/3;
+    var l3 = 2*0.99*cH*Math.sqrt(3)/3;
     var ln = bn*l3/b3;
+	if (N != 3 && N != 4) ln *= 0.86;
     
     var ai = an/2.;
     xV[0] = cW/2.;
     yV[0] = 7.;
+	if (N == 4) {
+		ln = 0.99*cH;
+		xV[0] -= ln/2.;
+		ai = an;
+	}
     xnew = xV[0];
     ynew = yV[0];
 
@@ -97,8 +104,20 @@ function DrawInitPolygon()
         drawPixel(xV[i]+1, yV[i], 0, 0, 255, 255);
         drawPixel(xV[i]+1, yV[i]+1, 0, 0, 255, 255);
         drawPixel(xV[i]+1, yV[i]-1, 0, 0, 255, 255);
-    }  
-    updateCanvas();
+    }
+	updateCanvas();
+
+	// filling attractor points vector
+	for (var i = 1; i <= N; i++) {
+		var dx = (xV[i] - xV[i-1])/(N-2);
+		var dy = (yV[i] - yV[i-1])/(N-2);
+		for (var j = 1; j <= N-3; j++) {
+			xV.push(xV[i-1] + j*dx);
+			yV.push(yV[i-1] + j*dy);
+		}
+	}
+	xV.splice(N, 1);
+	yV.splice(N, 1);
 }
 
 function DrawPoints()
@@ -108,10 +127,18 @@ function DrawPoints()
     document.getElementById("totalP").innerHTML = a.toString();
     
     for (var i = 0; i < num; i++) {
-        var vx = Math.floor(Math.random() * N);
-        xnew = (xV[vx] + xnew)/2;
-        ynew = (yV[vx] + ynew)/2;
+        var vx = Math.floor(Math.random() * (N + N*(N - 3)));					// N vertices + N*(N-3) additional attractor points
+        xnew = ((N-2)*xV[vx] + xnew)/(N-1);
+        ynew = ((N-2)*yV[vx] + ynew)/(N-1);
         drawPixel(xnew, ynew, 0, 0, 255, 255);
     }
     updateCanvas();    
+	
+	ctx.beginPath();      
+	ctx.moveTo(xnew-5, ynew-3);   
+	ctx.lineTo(xnew-2, ynew);
+	ctx.lineTo(xnew-5, ynew+3);
+	ctx.moveTo(xnew-2, ynew);
+	ctx.lineTo(xnew-12, ynew);
+	ctx.stroke();   	
 }
